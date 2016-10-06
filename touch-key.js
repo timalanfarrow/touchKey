@@ -75,7 +75,7 @@ const tk = (function( $onScreenKeyboard ) {
         "shift"  : "secondary",
       };
 
-      let $keyboard = $("#onScreenKeyboard");
+      let $keyboard = $onScreenKeyboard;
       $keyboard.html('');
 
       for( n in keyboard ) {
