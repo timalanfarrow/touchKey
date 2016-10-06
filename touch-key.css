@@ -1,0 +1,135 @@
+
+
+/* onscreen keyboard */
+#onScreenKeyboard {
+  position:absolute;
+  width: 100%;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 30px;
+  background-color: #222222;
+}
+
+#onScreenKeyboard.relative {
+  position: relative !important;
+  left: 0%;
+  transform: none;
+}
+
+#onScreenKeyboard.numbers {
+  width: auto;
+}
+
+#onScreenKeyboard.autoDisplay {
+  display: inline-block !important;
+}
+
+#onScreenKeyboard .keyRow {
+  display: flex;
+  width: 100%;
+  margin-bottom: 5px;
+  display: flex;
+  position: Relative;
+  flex-wrap: wrap;
+  justify-content: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#onScreenKeyboard .key.first {
+  background-color: white !important;
+}
+
+#onScreenKeyboard .currentRow {
+  padding-bottom: 0px !important;
+  margin-bottom: 0px;
+}
+
+#onScreenKeyboard .keyRow .key {
+  display: inline-block;
+  color: white;
+  font-size: 30px;
+  border-radius: 5px;
+  background-color: rgba(28,28,28,1);
+  margin-right: 5px;
+  display: flex;
+  flex-wrap: flex;
+  justify-content: center;
+  align-items: center;
+  line-height:0;
+  height: 100px;
+  width: 100px;
+}
+
+#onScreenKeyboard .keyRow .key:last-child {
+  margin-right: 0px !important;
+}
+
+#onScreenKeyboard .keyRow .key.shift, #onScreenKeyboard .keyRow .key.caps {
+  text-transform: uppercase;
+}
+
+#onScreenKeyboard .keyRow .key:active {
+  background-color: #3d3d3d;
+}
+
+.key.active {
+  background-color: rgba(28,28,28,1);
+}
+
+.key.special {
+  width: auto !important;
+  min-width: 100px;
+  padding: 0px 15px;
+  flex: 1;
+}
+
+.key.special.buffer {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.key.simple-back-space {
+    color: transparent !important;
+    overflow: hidden;
+    background: url(/static/img/backspace.svg);
+    background-color: #981818 !important;
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.spacebar-key {
+  width: 100% !important;
+}
+
+.shift-key {
+  flex: 1 0 auto;
+}
+
+.backspace-key {
+  flex: 1 0 auto;
+}
+
+.caps-key {
+  flex: 3 0 auto;
+}
+
+.next-key {
+  flex: 2 0 auto;
+}
+
+.simple-submit {
+  color: transparent !important;
+  overflow: hidden;
+  background: url(/static/img/submit.svg);
+  background-color: #30b913 !important;
+  background-size: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.active {
+  opacity: 0.8
+}
