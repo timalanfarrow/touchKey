@@ -1,20 +1,32 @@
-
-
-/* onscreen keyboard */
 #onScreenKeyboard {
+  box-sizing: border-box;
   position:absolute;
   width: 100%;
   bottom: 0px;
   left: 50%;
   transform: translateX(-50%);
   padding: 30px;
-  background-color: #222222;
+  background-color: #f3f3f3;
+}
+
+#onScreenKeyboard .secondary-keyboard {
+  display: none;
 }
 
 #onScreenKeyboard.relative {
   position: relative !important;
   left: 0%;
   transform: none;
+}
+
+#onScreenKeyboard > * {
+  display: flex;
+  flex-flow: column !important;
+  width: 100%;
+}
+
+#onScreenKeyboard.relative .keyRow {
+  flex-flow: row !important;
 }
 
 #onScreenKeyboard.numbers {
@@ -48,10 +60,11 @@
 
 #onScreenKeyboard .keyRow .key {
   display: inline-block;
-  color: white;
+  color: #444;
+  font-weight: 600;
   font-size: 30px;
   border-radius: 5px;
-  background-color: rgba(28,28,28,1);
+  background-color: white;
   margin-right: 5px;
   display: flex;
   flex-wrap: flex;
@@ -71,11 +84,17 @@
 }
 
 #onScreenKeyboard .keyRow .key:active {
-  background-color: #3d3d3d;
+  background-color: #bb2b2b;
+  color: white;
+}
+
+.secondary-keyboard {
+  display: none;
 }
 
 .key.active {
-  background-color: rgba(28,28,28,1);
+  background-color: #bb2b2b;
+  color: white;
 }
 
 .key.special {
@@ -94,7 +113,7 @@
     color: transparent !important;
     overflow: hidden;
     background: url(/static/img/backspace.svg);
-    background-color: #981818 !important;
+    background-color: #bb2b2b !important;
     background-size: 50%;
     background-repeat: no-repeat;
     background-position: center;
@@ -132,4 +151,8 @@
 
 .active {
   opacity: 0.8
+}
+
+.hidden {
+  display: none;
 }

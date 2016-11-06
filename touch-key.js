@@ -1,17 +1,16 @@
-const tk = (function( $onScreenKeyboard ) {
+const xmas = (function( $onScreenKeyboard ) {
   let onscreenkeyboard = function main( $onScreenKeyboard ) {
     let keyboard;
     let maxLength;
+    let languagePack = 'english';
     
-    if( $onScreenKeyboard.length ) {
-      console.log("Keyboard required");
-    } else {
+    if( localStorage %% localStorage.getItem('languagePack') != null )
+      languagePack = localStorage.getItem('languagePack');
+
+    if( !$onScreenKeyboard.length )
       return;
-    }
 
-    console.log( keyboard );
-
-    var keyboards = {
+    let keyboards = {
       "number" : {
         "default" : [
           {
@@ -24,14 +23,14 @@ const tk = (function( $onScreenKeyboard ) {
             "characters": "789"
           },
           {
-            "characters": "[simpleSubmit] 0 [simpleBackSpace]"
+            "characters": "[simpleBackSpace] 0 [simpleSubmit]"
           }
         ]
       },
       "text" : {
         "default" : [
           {
-            "characters": "[buffer] 1234567890- [buffer]",
+            "characters": "[buffer] [.com] 1234567890-@ [buffer]",
           },
           {
             "characters": "[buffer] qwertyuiop [backspace]"
@@ -49,7 +48,7 @@ const tk = (function( $onScreenKeyboard ) {
         ],
         "shift" : [
           {
-            "characters": "[buffer] !@#$%^&*()_ [buffer]",
+            "characters": "[buffer] [.com] !@#$%^&*()_@ [buffer]",
           },
           {
             "characters": "[buffer] QWERTYUIOP [backspace]"
@@ -67,6 +66,11 @@ const tk = (function( $onScreenKeyboard ) {
       }
     };
 
+    if ( languagePack == 'spanish' ) {
+      keyboards.text.default[2].characters = "[caps] asdfghjklñ [submit]";
+      keyboards.text.shift[2].characters = "[caps] ASDFGHJKLÑ [submit]";
+    }
+
     const constructKeyboard = function buildKeyBoardFromJSONRows( keyboard ) {
 
       const keyboardMap = {
@@ -79,7 +83,6 @@ const tk = (function( $onScreenKeyboard ) {
       $keyboard.html('');
 
       for( n in keyboard ) {
-        console.log( n );
         let type = keyboardMap[n];
         let rows = keyboard[n];
         let keyboardClass = type + "-keyboard";
@@ -87,17 +90,17 @@ const tk = (function( $onScreenKeyboard ) {
 
         let $curKeyboard = $("." + keyboardClass );
         for( i in rows ) {
-          var row = rows[i];
-          var keyClass = row.keyClass == undefined ? "" : row.keyClass;
+          let row = rows[i];
+          let keyClass = row.keyClass == undefined ? "" : row.keyClass;
 
           $curKeyboard.append("<div class='keyRow active'></div>");
-          var $curRow = $(".keyRow.active");
+          let $curRow = $(".keyRow.active");
 
-          var groups = row.characters.split(" ");
-          var characters = [];
+          let groups = row.characters.split(" ");
+          let characters = [];
 
           for( ind in groups ) {
-            var str = groups[ind];
+            let str = groups[ind];
             if( str[0] == "[") {
               characters.push( str.substr( 1, str.length - 2 ) );
             } else {
@@ -105,10 +108,10 @@ const tk = (function( $onScreenKeyboard ) {
             }
           }
 
-          var keyClasses = {
+          let keyClasses = {
             "buffer"          : "buffer special",
             "simpleBackSpace" : "simple-back-space",
-            "simpleSubmit"    : "simple-submit",
+            "simpleSubmit"    : "simple-submit submit",
             "shift"           : "shift-key special",
             "space"           : "spacebar-key special",
             "backspace"       : "backspace-key special",
@@ -120,17 +123,42 @@ const tk = (function( $onScreenKeyboard ) {
           for( j in characters ) {
             let keyClass = ' simple';
             let character = characters[j];
-            if( ( character.length > 1 ) && keyClasses.hasOwnProperty(character) )
+            if( ( character.length > 1 ) && keyClasses.hasOwnProperty(character) ) {
               keyClass = keyClasses[ character ];
-            $curRow.append("<div class='key " + keyClass + "'>" + character + "</div>");
+            }
+            $curRow.append("<div class='key " + keyClass + "' data-key='" + character + "'>" + character + "</div>");
           }
 
           $curRow.removeClass('active');
         }
       }
 
-      let backspace = function deleteLastCharacter( $input ) {
-        $input.val( $input.val().substr(0, $input.val().length -1 ) );
+      let backspace = function backspaceFunctionWithHoldCapability( $input, $backspaceKey) {
+        let del = function deleteLastCharacter( $element ) {
+          $element.val( $element.val().substr(0, $element.val().length -1 ) );
+        }
+
+        del( $input );
+
+        let rdID = null;
+
+        let rapidDelete = function rapidlyDeleteCharactersUntilMouseup() {
+          rdID = window.setInterval( function holdBackspace() { 
+            del( $input );
+          }, 60 );
+        }
+
+        let delay = (function delayAndThenRapidDelete() {
+          return window.setTimeout( rapidDelete, 500 );
+        }());
+
+        $backspaceKey.off('mouseup');
+        $backspaceKey.on('mouseup', ( e ) => {
+          window.clearInterval( delay );  // don't run our rapidDelete
+
+          if ( rdID != null )
+            window.clearInterval( rdID ); // stop rapidDelete if it's already running
+        })
       }
 
       const shiftKeyboard = function shiftCharactersBySwitchingKeyboards() {
@@ -143,7 +171,6 @@ const tk = (function( $onScreenKeyboard ) {
 
       let keyFunctions = {
         "shift" : function() {
-          console.log('hi');
           shiftKeyboard();
 
           let $keys = $('.key');
@@ -156,27 +183,30 @@ const tk = (function( $onScreenKeyboard ) {
         "caps" : function() {
           shiftKeyboard();
         },
-        "simpleBackSpace" : function( clicked ) {
-          backspace( $('.focus') );
+        "simpleBackSpace" : function( $clicked ) {
+          backspace( $('.focus'), $clicked );
         },
-        "backspace" : function( clicked ) {
-          backspace( $('.focus') );
+        "simpleSubmit" : function() {
+
+        },
+        "backspace" : function( $clicked ) {
+          backspace( $('.focus'), $clicked );
+        },
+        "simpleSubmit" : function() {
+          // no op
         },
         "submit" : function() {
           $(".focus").parent("form").submit();
-        },
-        "next" : function() {
-          console.log( 'hi' );
         }
       }
 
       let $theseKeys = $('.key');
-      $theseKeys.off('click');
+      $theseKeys.off('mousedown');
 
-      $theseKeys.on("click", function(e) {
+      $theseKeys.on("mousedown", function(e) {
         let $key  = $( e.target );
 
-        let value = $key.text();
+        let value = $key[0].dataset.key;
         let $focus = $(".focus");
         
         if( keyFunctions.hasOwnProperty(value) ) {
@@ -189,42 +219,67 @@ const tk = (function( $onScreenKeyboard ) {
           $focus.val( $focus.val() + value );
         }
 
-        if( $key.hasClass('shift-key') )
+        if ( $key.hasClass('shift-key') )
           return;
 
-        if( $key.hasClass('shifted') ) {
+        if ( $key.hasClass('shifted') ) {
           shiftKeyboard();
           $('.shifted').removeClass('shifted');
         }
       })
     }
 
-
     $('input').on('focus', ( e ) => {
-      let $thisInput = $( e.target );
+      let $thisInput  = $( e.target );
+      let thisDataset = $thisInput[0].dataset;
 
-      if( $thisInput[0].dataset.maxLength != undefined ){
+      maxLength = undefined;
+      let autoCapitalize = false;
+
+      if ( thisDataset.maxLength != undefined ){
         maxLength = parseInt( $thisInput[0].dataset.maxLength, 10 );
       }
-      
+
+      if ( thisDataset.autoCapitalize != undefined ) {
+        autoCapitalize = thisDataset.autoCapitalize;
+      }
+
       $(".focus").removeClass("focus");
       $thisInput.addClass("focus");
 
-      console.log( keyboard, $thisInput.attr('type') );
+      // make sure to autocapitalize if necessary
+      if ( autoCapitalize && ( $('.secondary-keyboard').css('display') == 'none' ) ) {
+        $('.shift-key').eq(0).mousedown().mouseup(); // makes sure we don't run it four times
+      }
 
+      // make sure to uncapitalize if necessary
+      if ( !autoCapitalize && !( $('.secondary-keyboard').css('display') == 'none' ) ) {
+        $('.shift-key').eq(0).mousedown().mouseup(); // makes sure we don't run it four times
+      }
       if( keyboard == $thisInput.attr('type') ) {
-        console.log('lay the foundation pupper');
         return;
       }
 
       keyboard = $thisInput.attr('type');
 
       constructKeyboard( keyboards[ keyboard ], maxLength );
-    })
 
+      let buttonMap = {
+        '.shift-key'     : 'cambio',
+        '.backspace-key' : 'retroceso',
+        '.spacebar-key'  : 'espacio'
+      }
+      // hackjob to support multiple languages
+      if ( languagePack == 'spanish' ) {
+        for ( i in buttonMap ) {
+          $( i ).text( buttonMap[i] );
+        }
+      }
+    })
   };
 
   return {
     init: onscreenkeyboard
   };
 }());
+  
